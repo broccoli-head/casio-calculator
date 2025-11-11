@@ -16,9 +16,14 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
-    public final int MAX_INPUT_LENGTH = 8;
+    private final int MAX_INPUT_LENGTH = 8;
     private boolean signProvided = false;
     private boolean pointProvided = false;
+    private boolean turnedOn = true;
+
+    TextView numberInput, signInput;
+    List<String> operationList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        TextView numberInput = findViewById(R.id.numberDisplay);
-        TextView signInput = findViewById(R.id.signDisplay);
+        numberInput = findViewById(R.id.numberDisplay);
+        signInput = findViewById(R.id.signDisplay);
 
         List<Button> numericButtons = List.of(
             findViewById(R.id.oneButton),
@@ -55,9 +60,8 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.divideButton)
         );
 
-        List<String> operationList = new ArrayList<>();
-
         numericButtons.forEach(button -> button.setOnClickListener(view -> {
+            if (!turnedOn) return;
             String currentText = numberInput.getText().toString();
             String currentSign = signInput.getText().toString();
 
@@ -71,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 else
                     operationList.add(currentSign);
 
-                currentText = "";
+                currentText = "0";
                 signInput.setText("");
                 signProvided = false;
                 pointProvided = false;
@@ -79,7 +83,15 @@ public class MainActivity extends AppCompatActivity {
 
             String number = button.getText().toString();
 
-            if(number.equals(".")) pointProvided = true;
+            if(number.equals("•")) {
+                if(!pointProvided && currentText.length() < MAX_INPUT_LENGTH) {
+                    String newText = currentText + ".";
+                    numberInput.setText(newText);
+                    pointProvided = true;
+                    return;
+                }
+                else return;
+            }
             if (currentText.length() >= MAX_INPUT_LENGTH) return;
 
             String newText = currentText.equals("0") ? number : currentText.concat(number);
@@ -88,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         signButtons.forEach(button -> button.setOnClickListener(view -> {
+            if (!turnedOn) return;
             String sign = button.getText().toString();
             signInput.setText(sign);
             signProvided = true;
@@ -95,7 +108,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         Button executeButton = findViewById(R.id.executeButton);
+        Button clearButton = findViewById(R.id.clearButton);
+        Button clearAllButton = findViewById(R.id.clearAllButton);
+        Button squareRootButton = findViewById(R.id.squareRootButton);
+        Button percentButton = findViewById(R.id.percentButton);
+        Button offButton = findViewById(R.id.offButton);
+        Button memoryAdd = findViewById(R.id.plusMButton);
+        Button memoryRemove = findViewById(R.id.minusMButton);
+        Button memoryRC = findViewById(R.id.mrcButton);
+
+
         executeButton.setOnClickListener(view -> {
+            if (!turnedOn) return;
             String currentText = numberInput.getText().toString();
             operationList.add(currentText);
 
@@ -112,31 +136,33 @@ public class MainActivity extends AppCompatActivity {
             if(outputValue.endsWith(".0"))
                 outputValue = outputValue.substring(0, outputValue.length() - 2);
 
+            boolean dotFound = false;
+            for (char digit : outputValue.toCharArray()) {
+                if(digit == '.') {
+                    dotFound = true;
+                    break;
+                }
+            }
+
             numberInput.setText(outputValue);
             signInput.setText("=");
             operationList.clear();
+            pointProvided = dotFound;
         });
 
-
-        Button clearButton = findViewById(R.id.clearButton);
-        Button clearAllButton = findViewById(R.id.clearAllButton);
 
         clearButton.setOnClickListener(view -> {
-            numberInput.setText("0");
-            signInput.setText("");
-            operationList.clear();
+            if (!turnedOn) return;
+            reset();
         });
         clearAllButton.setOnClickListener(view -> {
-            numberInput.setText("0");
-            signInput.setText("");
-            operationList.clear();
+            if (!turnedOn) return;
+            reset();
         });
 
 
-        Button squareRootButton = findViewById(R.id.squareRootButton);
-        Button percentButton = findViewById(R.id.percentButton);
-
         squareRootButton.setOnClickListener(view -> {
+            if (!turnedOn) return;
             String currentText = numberInput.getText().toString();
             double value = Double.parseDouble(currentText);
             value = Math.sqrt(value);
@@ -148,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         percentButton.setOnClickListener(view -> {
+            if (!turnedOn) return;
             String currentText = numberInput.getText().toString();
             double value = Double.parseDouble(currentText);
             value *= 0.01;
@@ -155,5 +182,28 @@ public class MainActivity extends AppCompatActivity {
             if(String.valueOf(value).length() <= MAX_INPUT_LENGTH)
                 numberInput.setText(String.valueOf(value));
         });
+
+
+        offButton.setOnClickListener(view -> {
+            if (turnedOn) {
+                reset();
+                offButton.setText("ON");
+                numberInput.setText("");
+                turnedOn = false;
+            }
+            else {
+                offButton.setText("OFF");
+                numberInput.setText("0");
+                turnedOn = true;
+            }
+        });
+    }
+
+    private void reset() {
+        numberInput.setText("0");
+        signInput.setText("");
+        operationList.clear();
+        pointProvided = false;
+        signProvided = false;
     }
 }
