@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private long lastClickedTime = 0;
     private long mrcClickedTime = 0;
 
-    private TextView numberInput, signInput;
+    private TextView numberInput, signInput, memoryDisplay;
     private final List<String> operationList = new ArrayList<>();
     private double memory = 0;
 
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         numberInput = findViewById(R.id.numberDisplay);
         signInput = findViewById(R.id.signDisplay);
-        TextView memoryDisplay = findViewById(R.id.memoryDisplay);
+        memoryDisplay = findViewById(R.id.memoryDisplay);
 
         List<Button> numericButtons = List.of(
             findViewById(R.id.oneButton),
@@ -102,7 +102,10 @@ public class MainActivity extends AppCompatActivity {
                     numberInput.setText(memoryVal);
                 }
                 //double click - clear function
-                else memory = 0;
+                else {
+                    memory = 0;
+                    memoryDisplay.setText("");
+                }
                 return;
             }
 
@@ -180,6 +183,8 @@ public class MainActivity extends AppCompatActivity {
         clearAllButton.setOnClickListener(view -> {
             if (!turnedOn) return;
             reset();
+            memoryDisplay.setText("");
+            memory = 0;
         });
 
 
@@ -210,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
             if (turnedOn) {
                 reset();
                 memory = 0;
+                memoryDisplay.setText("");
                 offButton.setText("ON");
                 numberInput.setText("");
                 turnedOn = false;
@@ -224,10 +230,16 @@ public class MainActivity extends AppCompatActivity {
         memoryAdd.setOnClickListener(view -> {
             if (!turnedOn) return;
             memory += Double.parseDouble(numberInput.getText().toString());
+
+            if (memory != 0) memoryDisplay.setText("M");
+            else memoryDisplay.setText("");
         });
         memoryRemove.setOnClickListener(view -> {
             if (!turnedOn) return;
             memory -= Double.parseDouble(numberInput.getText().toString());
+
+            if (memory != 0) memoryDisplay.setText("M");
+            else memoryDisplay.setText("");
         });
     }
 
