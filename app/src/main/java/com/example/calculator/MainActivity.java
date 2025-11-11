@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         numberInput = findViewById(R.id.numberDisplay);
         signInput = findViewById(R.id.signDisplay);
+        TextView memoryDisplay = findViewById(R.id.memoryDisplay);
 
         List<Button> numericButtons = List.of(
             findViewById(R.id.oneButton),
