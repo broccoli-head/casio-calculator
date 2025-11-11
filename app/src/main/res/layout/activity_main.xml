@@ -61,7 +61,7 @@
 
             <TextView
                 android:id="@+id/signDisplay"
-                android:layout_width="wrap_content"
+                android:layout_width="25dp"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:fontFamily="sans-serif-medium"
