@@ -21,8 +21,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean pointProvided = false;
     private boolean turnedOn = true;
 
-    TextView numberInput, signInput;
-    List<String> operationList = new ArrayList<>();
+    //for detecting double click on mrc button
+    private long lastClickedTime = 0;
+    private long mrcClickedTime = 0;
+
+    private TextView numberInput, signInput;
+    private final List<String> operationList = new ArrayList<>();
+    private double memory = 0;
 
 
     @Override
@@ -50,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.eightButton),
             findViewById(R.id.nineButton),
             findViewById(R.id.zeroButton),
-            findViewById(R.id.pointButton)
+            findViewById(R.id.pointButton),
+            findViewById(R.id.mrcButton)
         );
 
         List<Button> signButtons = List.of(
@@ -83,8 +89,24 @@ public class MainActivity extends AppCompatActivity {
 
             String number = button.getText().toString();
 
-            if(number.equals("•")) {
-                if(!pointProvided && currentText.length() < MAX_INPUT_LENGTH) {
+            if (number.equals("MRC")) {
+                lastClickedTime = mrcClickedTime;
+                mrcClickedTime = System.currentTimeMillis();
+                String memoryVal = String.valueOf(memory);
+
+                //single click - recall function
+                if (mrcClickedTime - lastClickedTime > 250) {
+                    if(memoryVal.endsWith(".0"))
+                        memoryVal = memoryVal.substring(0, memoryVal.length() - 2);
+                    numberInput.setText(memoryVal);
+                }
+                //double click - clear function
+                else memory = 0;
+                return;
+            }
+
+            if (number.equals("•")) {
+                if (!pointProvided && currentText.length() < MAX_INPUT_LENGTH) {
                     String newText = currentText + ".";
                     numberInput.setText(newText);
                     pointProvided = true;
@@ -115,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         Button offButton = findViewById(R.id.offButton);
         Button memoryAdd = findViewById(R.id.plusMButton);
         Button memoryRemove = findViewById(R.id.minusMButton);
-        Button memoryRC = findViewById(R.id.mrcButton);
 
 
         executeButton.setOnClickListener(view -> {
@@ -187,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
         offButton.setOnClickListener(view -> {
             if (turnedOn) {
                 reset();
+                memory = 0;
                 offButton.setText("ON");
                 numberInput.setText("");
                 turnedOn = false;
@@ -196,6 +218,15 @@ public class MainActivity extends AppCompatActivity {
                 numberInput.setText("0");
                 turnedOn = true;
             }
+        });
+
+        memoryAdd.setOnClickListener(view -> {
+            if (!turnedOn) return;
+            memory += Double.parseDouble(numberInput.getText().toString());
+        });
+        memoryRemove.setOnClickListener(view -> {
+            if (!turnedOn) return;
+            memory -= Double.parseDouble(numberInput.getText().toString());
         });
     }
 
