@@ -246,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
     private void reset() {
         numberInput.setText("0");
         signInput.setText("");
-        memoryDisplay.setText("");
         operationList.clear();
         pointProvided = false;
         signProvided = false;
